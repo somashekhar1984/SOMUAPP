@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="">
+<title>SMS box</title>
+<link rel="stylesheet"
+	href="sm/bootstrap.min.css">
+<link rel="stylesheet"
+	href="sm/bootstrap-theme.min.css">
+	<script src="sm/jquery-latest.js"></script>
+	<style type="text/css">
+	.help-block .test-danger{
+            color:red;
+        }
+        .input-sm {
+            border-radius: 0 !important;
+        }
+        .input-group .form-control {
+            border-radius: 0;
+            box-shadow: none;  
+        }
+        .form-control{
+            box-shadow: none !important;
+            border-radius: 0;
+        }</style>
+ <script>
+   $(document).ready(function(){ 
+//alert("hai");
+    $('#characterLeft').text('160 characters left');
+    $('#message').keyup(function () {
+        var max = 160;
+        var len = $(this).val().length;
+        if (len >= max) {
+        	var ch =max+(len-max);
+            $('#characterLeft').text(ch+ ' You have reached the limit of '+max);
+            $('#characterLeft').addClass('test-danger');
+           // $('#btnSubmit').addClass('disabled');            
+        } 
+        else {
+            var ch = max - len;
+            $('#characterLeft').text(ch + ' characters left');
+            $('#btnSubmit').removeClass('disabled');
+            $('#characterLeft').removeClass('test-danger');            
+        }
+    });    
+});
+   
+   function sendSMS()
+   {
+     var mobnum=document.getElementById('mobnum').value;
+     var txtmsg=document.getElementById('message').value;
+    
+     //alert("hai");
+     if(!Validate())
+       {
+       alert("Please Enter valid Mobile Number..");
+       document.frm.mobnum.focus();
+       return false;
+       }
+     if(txtmsg=="")
+     {
+     alert("Please Enter Text Message..");
+     document.frm.txtmsg.focus();
+     return false;
+     }
+     
+    //alert("hai");
+     $.ajax({
+         method: "POST",
+         url: "http://117.247.1.109:8182/SRH/rest/sendsms/sendsmstopatient",
+          //url: "http://localhost:8080/SRH/rest/sendsms/sendsmstopatient",
+         data: { mobnum: mobnum, txtmsg: txtmsg}
+       })
+         .done(function( html ) {
+          
+          var msg1 = "<div  class=\"alert alert-success alert-dismissible col-md-12\" role=\"alert\">" + 
+			"<strong>Message successfully sent to "+mobnum+"</strong>." + 
+			"</div>";
+			
+			 var msg2 = "<div  class=\"alert alert-danger alert-dismissible col-md-6\" role=\"alert\">" + 
+				"<strong>Message Failed...</strong>." + 
+				"</div>";
+	//alert(msg);
+	
+	var msg="";
+	
+	if(html=="SUCCESS")
+		{
+		msg=msg1;
+		}else{
+			msg=msg2;
+		}
+	
+	$("#messageBox").html('');
+	$("#messageBox").append(msg);
+	
+	setTimeout(function(){
+		$( "#messageBox" ).html('');
+	},3000);
+	
+
+             clearForm();
+    
+         });
+       
+     
+   }
+   
+   function clearForm()
+   {
+     //alert('jjj');
+     document.getElementById('mobnum').value='';
+     document.getElementById('message').value='';
+     $('#characterLeft').text('160 characters left');
+   }
+   
+  	
+   function Validate() {
+       var mobile = document.getElementById("mobnum").value;
+       var pattern = /^\d{10}$/;
+       if (pattern.test(mobile)) {
+          // alert("Your mobile number : " + mobile);
+           return true;
+       }
+       //alert("It is not valid mobile number.input 10 digits number!");
+       return false;
+   }
+
+   
+    </script>
+ 
+</head>
+<body>
+
+<form name="frm">
+
+	<div class="container">
+	
+		<div class="row">
+			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+			
+				<div style="margin-top: 70px;width: 60%" 
+					class="col-md-6 col-md-offset-2 col-sm-8 col-sm-offset-2">
+					<div class="panel panel-info">
+						<div class="panel-heading" style="background:white">
+							<div class="panel-title" style="color: #e16de2;font-weight: bold;font-size: 18px;">SEND SMS</div>
+						</div>
+						<div class="panel-body" style="background:white;font-weight: bold;font-size: 15px;">
+							<div class="row">
+								<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+									<div class="form-group">
+										<div class="input-group">
+											<span class="input-group-addon"> +91 </span> <input
+												type="text" class="form-control borderRadius"
+												name="mobnum" id="mobnum" value="" maxlength="10" 
+												placeholder="Enter 10 digit mobile number">
+										</div>
+									</div>
+								</div>
+								<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+									<div class="form-group">
+										<textarea style="background:white;font-weight: bold;font-size: 15px;" class="form-control input-sm borderRadius "
+											type="textarea" id="message" name="txtmsg" placeholder="Type message here"
+											 rows="12"></textarea>
+									</div>
+								</div>
+								<div class="col-xs-12 col-sm-12 col-md-12 col-lg-6">
+									<span class="help-block" style="color: green;">
+										<p id="characterLeft">Left</p>
+									</span>
+								</div>
+								<div class="col-xs-12 col-sm-12 col-md-12 col-lg-6"
+									align="right">
+									<button class="btn" id="btnSubmit"
+										name="btnSubmit" type="button" onclick="sendSMS()" style="color: white;font-weight: bold;background-color: gray">Send SMS</button>
+								</div>
+							</div>
+						</div>
+					</div>
+					
+					<div id="messageBox"></div>
+				</div>
+			</div>
+		
+		</div>
+		
+	</div>
+	</form>
+	
+</body>
+</html>
+
